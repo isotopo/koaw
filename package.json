@@ -1,0 +1,42 @@
+{
+  "name": "koa-restful",
+  "version": "0.1.0",
+  "description": "Koa Restful",
+  "main": "lib",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/4yopping/koa-restful.git"
+  },
+  "keywords": [
+    "koa",
+    "rest",
+    "restful",
+    "middlewares",
+    "connect",
+    "express",
+    "generators",
+    "async",
+    "await",
+    "auto-generated",
+    "waterline",
+    "api"
+  ],
+  "author": "4yopping",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/4yopping/koa-restful/issues"
+  },
+  "homepage": "https://github.com/4yopping/koa-restful",
+  "devDependencies": {
+    "eslint": "^1.10.3",
+    "eslint-config-standard": "^4.4.0",
+    "eslint-plugin-standard": "^1.3.1",
+    "sinon": "^1.17.2"
+  }
+}
