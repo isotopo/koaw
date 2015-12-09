@@ -38,7 +38,7 @@ describe('RestController#Instance', function () {
       let controller = new RestController()
       done(controller)
     } catch (err) {
-      assert.equal(err.message, 'RestController needs a waterline model')
+      assert.equal(err.message, 'Controller needs a model to be initialized')
       done()
     }
   })
@@ -47,5 +47,13 @@ describe('RestController#Instance', function () {
     let controller = new RestController(Store)
     assert(controller._model)
     assert(controller._model.prototype instanceof Waterline.Collection)
+    assert(controller._methods)
+    assert(controller._defaultMethods)
+    assert(controller._defaultMethods, controller._methods)
+  })
+
+  it('should be chained in all methods', function () {
+    let controller = new RestController(Store)
+    assert.equal(controller, controller.methods('GET POST'))
   })
 })
