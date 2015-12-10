@@ -1,74 +1,82 @@
 'use strict'
 
 const assert = require('assert')
+const orm = require('./fixtures/orm')
 const RestController = require('../lib')
-const Store = require('./fixtures/store')
 
 describe('controller', function () {
-  it('should set default methods', function () {
-    let methods = ['GET', 'POST', 'PUT', 'DELETE']
-    let controller = new RestController(Store)
-    assert(Array.isArray(controller._methods))
-    assert.equal(controller._methods.length, methods.length)
-
-    methods.forEach(function (method) {
-      assert(controller._methods.indexOf(method) > -1)
-    })
+  before(function *() {
+    this.orm = yield orm()
+    this.model = this.orm.collections.store
   })
 
-  it('should set specific methods', function () {
-    let methods = ['GET', 'POST']
-    let controller = new RestController(Store)
+  it('should set default methods', function () {
+    let methods = ['get', 'post', 'put', 'delete']
+    let controller = new RestController(this.model)
+    let allowed = controller.allowedMethods
+
+    assert(Array.isArray(allowed))
+    assert.equal(allowed.length, methods.length)
+    assert(allowed.every(m => !!~methods.indexOf(m)))
+  })
+
+  it('should set specific methods with a whitelisted string', function () {
+    let methods = ['get', 'post']
+    let controller = new RestController(this.model)
     controller.methods(methods.join(' '))
 
-    assert(Array.isArray(controller._methods))
-    assert.equal(controller._methods.length, methods.length)
-    methods.forEach(function (method) {
-      assert(controller._methods.indexOf(method) > -1)
-    })
+    let allowed = controller.allowedMethods
+
+    assert(Array.isArray(allowed))
+    assert.equal(allowed.length, methods.length)
+    assert(allowed.every(m => !!~methods.indexOf(m)))
   })
 
   it('should set specific methods with an array', function () {
-    let methods = ['PUT', 'DELETE']
-    let controller = new RestController(Store)
+    let methods = ['put', 'delete']
+
+    let controller = new RestController(this.model)
     controller.methods(methods)
 
-    assert(Array.isArray(controller._methods))
-    assert.equal(controller._methods.length, methods.length)
-    methods.forEach(function (method) {
-      assert(controller._methods.indexOf(method) > -1)
-    })
+    let allowed = controller.allowedMethods
+
+    assert(Array.isArray(allowed))
+    assert.equal(allowed.length, methods.length)
+    assert(allowed.every(m => !!~methods.indexOf(m)))
   })
 
   it('should not set specific methods with an invalid argument', function (done) {
-    let controller = new RestController(Store)
+    let controller = new RestController(this.model)
 
     try {
       controller.methods(function () {})
       done(controller)
     } catch (e) {
-      assert.equal(e.message, 'HTTP methods should be specified only as string or array')
+      assert.equal(e.message, 'HTTP methods should be specified with an array or whitelisted string')
       done()
     }
   })
 
   it('should not set invalid methods', function (done) {
-    let controller = new RestController(Store)
-    let strMethods = 'FOO BAR BAZ MEH'
+    let controller = new RestController(this.model)
+    let strMethods = 'foo bar baz meh'
 
     try {
-      // should throw an error
       controller.methods(strMethods)
-      done(controller)
+      done('Should throw an error')
     } catch (e) {
-      let methods = ['GET', 'POST', 'PUT', 'DELETE']
+      let methods = ['get', 'post', 'put', 'delete']
+      let allowed = controller.allowedMethods
 
-      assert.equal(controller._methods.length, methods.length)
-      methods.forEach(function (method) {
-        assert(controller._methods.indexOf(method) > -1)
-      })
+      assert(Array.isArray(allowed))
+      assert.equal(allowed.length, methods.length)
+      assert(allowed.every(m => !!~methods.indexOf(m)))
 
       done()
     }
+  })
+
+  after(function () {
+    this.orm.teardown()
   })
 })

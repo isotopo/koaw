@@ -1,9 +1,11 @@
 'use strict'
 
 const assert = require('assert')
-const Waterline = require('waterline')
+const inflect = require('i')()
+const koa = require('koa')
+const orm = require('./fixtures/orm')
 const RestController = require('../lib')
-const Store = require('./fixtures/store')
+const Waterline = require('waterline')
 
 describe('RestController#Constructor', function () {
   before(function () {
@@ -11,6 +13,8 @@ describe('RestController#Constructor', function () {
     let methods = Object.getOwnPropertyNames(RestController.prototype)
     // Filter public methods
     this.publicMethods = methods.filter(m => /^(?!_)(?!constructor)/.test(m))
+    // Filter private methods
+    this.privateMethods = methods.filter(f => /^_/.test(f))
   })
 
   it('should be a constructor', function () {
@@ -20,8 +24,7 @@ describe('RestController#Constructor', function () {
     assert.equal(RestController.name, 'RestController')
   })
 
-  it('should have only this set of public functions', function () {
-    // Public functions that should have
+  it('should have only this set of public methods', function () {
     let fns = ['methods', 'validate', 'before', 'after', 'route', 'register']
 
     assert.equal(fns.length, this.publicMethods.length)
@@ -30,9 +33,24 @@ describe('RestController#Constructor', function () {
       assert.equal(typeof RestController.prototype[fn], 'function')
     }
   })
+
+  it('should have only this set of private methods', function () {
+    let fns = ['_get', '_post', '_put', '_delete']
+
+    assert.equal(fns.length, this.privateMethods.length)
+
+    for (let fn of fns) {
+      assert.equal(typeof RestController.prototype[fn], 'function')
+    }
+  })
 })
 
 describe('RestController#Instance', function () {
+  before(function *() {
+    this.orm = yield orm()
+    this.model = this.orm.collections.store
+  })
+
   it('should fail when instantiating without model', function (done) {
     try {
       let controller = new RestController()
@@ -43,17 +61,26 @@ describe('RestController#Instance', function () {
     }
   })
 
-  it('should initialize with this set of private properties', function () {
-    let controller = new RestController(Store)
-    assert(controller._model)
-    assert(controller._model.prototype instanceof Waterline.Collection)
+  it('should initialize with this set of properties', function () {
+    let controller = new RestController(this.model)
+    let collectionName = inflect.pluralize(this.model.identity)
     assert(controller._methods)
-    assert(controller._defaultMethods)
-    assert(controller._defaultMethods, controller._methods)
+    assert(controller._path, `/${collectionName}`)
+    assert(controller.model)
+    assert(controller.model instanceof Waterline.Collection)
+    assert(controller.allowedMethods)
+    assert.equal(controller._methods, controller.allowedMethods)
+    assert.equal(controller.collectionName, collectionName)
   })
 
   it('should be chained in all methods', function () {
-    let controller = new RestController(Store)
-    assert.equal(controller, controller.methods('GET POST'))
+    let server = koa()
+    let controller = new RestController(this.model)
+    assert.equal(controller, controller.methods('get post'))
+    assert.equal(controller, controller.register(server))
+  })
+
+  after(function () {
+    this.orm.teardown()
   })
 })
