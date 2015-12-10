@@ -1,5 +1,5 @@
 {
-  "name": "koa-restful",
+  "name": "koaw",
   "version": "0.1.0",
   "description": "Koa Restful",
   "main": "lib",
@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/4yopping/koa-restful.git"
+    "url": "https://github.com/4yopping/koaw.git"
   },
   "keywords": [
     "koa",
@@ -30,9 +30,9 @@
   "author": "4yopping",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/4yopping/koa-restful/issues"
+    "url": "https://github.com/4yopping/koaw/issues"
   },
-  "homepage": "https://github.com/4yopping/koa-restful",
+  "homepage": "https://github.com/4yopping/koaw",
   "devDependencies": {
     "co-mocha": "^1.1.2",
     "eslint": "^1.10.3",
