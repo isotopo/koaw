@@ -4,7 +4,6 @@ const assert = require('assert')
 const RestController = require('../lib')
 const orm = require('./fixtures/orm')
 const server = require('./fixtures/server')
-const sinon = require('sinon')
 
 describe('controller#register', function () {
   before(function *() {
@@ -39,13 +38,6 @@ describe('controller#register', function () {
       assert.equal(e.message, 'Controller needs a middleware server to register routes')
       done()
     }
-  })
-
-  it('should set route through server.use method', function *() {
-    let spy = sinon.spy(this.server, 'use')
-    let controller = new RestController(this.model)
-    controller.register(this.server)
-    assert.equal(spy.callCount, 5)
   })
 
   after(function () {
