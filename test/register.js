@@ -3,10 +3,12 @@
 const assert = require('assert')
 const RestController = require('../lib')
 const orm = require('./fixtures/orm')
+const server = require('./fixtures/server')
 const sinon = require('sinon')
 
 describe('controller#register', function () {
   before(function *() {
+    this.server = yield server()
     this.orm = yield orm()
     this.model = this.orm.collections.store
   })
