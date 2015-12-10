@@ -14,10 +14,22 @@ $ npm install koawww --save
 
 ```js
 const Controller = require('koawww')
-const Store = require('./models/store')
+const Koa = require('koa')
+const Waterline = require('waterline')
+const Stores = require('./collections/stores')
+
+// Set collections to ORM
+let waterline = new Waterline()
+waterline.loadCollection(Stores)
+
+// Create server
+let server = new Koa()
 
 // Set new controller
-let controller = new Controller(model)
+let controller = new Controller({
+  orm: waterline,
+  model: 'store'
+})
 
 // Set methods to be used
 controller.methods('get post put delete')
@@ -30,8 +42,12 @@ controller
   .after('post put', function *(next) { /* some logic */ })
   .after('put', function *(next) { /* some logic */ })
 
-// Register server to generate routes
+// Register controller
 controller.register(server)
+
+waterline.initialize({}, function (err) {
+  server.listen(4000)
+})
 ```
 
 The above code registers the following routes:
