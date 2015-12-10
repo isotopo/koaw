@@ -4,7 +4,7 @@ const assert = require('assert')
 const orm = require('./fixtures/orm')
 const RestController = require('../lib')
 
-describe('controller', function () {
+describe('controller#methods', function () {
   before(function *() {
     this.orm = yield orm()
     this.model = this.orm.collections.store
