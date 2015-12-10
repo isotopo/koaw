@@ -1,19 +1,19 @@
-# Koawww
+# koaw
 
-Create APIs using [Koa](http://koajs.com) and [Waterline](https://github.com/balderdashy/waterline). Koawww creates auto-generated CRUD routes, using the [co](https://github.com/tj/co) approach and the middleware design pattern.
+Create APIs using [Koa](http://koajs.com) and [Waterline](https://github.com/balderdashy/waterline). koaw creates auto-generated CRUD routes, using the [co](https://github.com/tj/co) approach and the middleware design pattern.
 
 ## Install
 
 With [npm](http://npmjs.org) do:
 
 ```
-$ npm install koawww --save
+$ npm install koaw --save
 ```
 
 ## Usage
 
 ```js
-const Controller = require('koawww')
+const Controller = require('koaw')
 const Koa = require('koa')
 const Waterline = require('waterline')
 const Stores = require('./collections/stores')
