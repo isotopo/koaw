@@ -43,11 +43,11 @@
     "koa-bodyparser": "^1.6.0",
     "sails-mongo": "^0.11.5",
     "sinon": "^1.17.2",
-    "supertest": "^1.1.0",
-    "waterline": "^0.10.28"
+    "supertest": "^1.1.0"
   },
   "dependencies": {
     "i": "^0.3.3",
-    "koa-router": "^5.3.0"
+    "koa-router": "^5.3.0",
+    "waterline": "^0.10.28"
   }
 }

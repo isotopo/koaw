@@ -13,7 +13,11 @@ describe('controller#register', function () {
     this.orm = yield orm()
     this.agent = request(this.server.listen())
 
-    this.controller = new RestController(this.orm.collections.store)
+    this.controller = new RestController({
+      orm: this.orm,
+      model: 'store'
+    })
+
     this.controller.methods('post get put delete')
     this.controller.register(this.server)
 
@@ -34,10 +38,6 @@ describe('controller#register', function () {
     assert(response.body.id)
     assert.equal(response.body.name, this.params.name)
     assert.equal(response.body.description, this.params.description)
-
-    let doc = yield this.controller.model.findOne({ id: this.id })
-    assert.equal(this.params.name, doc.name)
-    assert.equal(this.params.description, doc.description)
   })
 
   it('should set route to get a collection', function *() {

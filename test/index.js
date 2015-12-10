@@ -35,7 +35,7 @@ describe('RestController#Constructor', function () {
   })
 
   it('should have only this set of private methods', function () {
-    let fns = ['_get', '_post', '_put', '_delete']
+    let fns = ['_get', '_post', '_put', '_delete', '_getModel']
 
     assert.equal(fns.length, this.privateMethods.length)
 
@@ -48,26 +48,55 @@ describe('RestController#Constructor', function () {
 describe('RestController#Instance', function () {
   before(function *() {
     this.orm = yield orm()
-    this.model = this.orm.collections.store
+  })
+
+  it('should fail when instantiating without ORM instance', function (done) {
+    try {
+      let controller = new RestController()
+      done('Should have failed when missing a ORM instance', controller)
+    } catch (err) {
+      assert.equal(err.message, 'Controller needs a ORM to be initialized')
+      done()
+    }
   })
 
   it('should fail when instantiating without model', function (done) {
     try {
-      let controller = new RestController()
-      done(controller)
+      let controller = new RestController({
+        orm: this.orm
+      })
+      done('Should have failed when missing a model', controller)
     } catch (err) {
       assert.equal(err.message, 'Controller needs a model to be initialized')
       done()
     }
   })
 
+  it('should fail when instantiating with a ORM invalid', function (done) {
+    try {
+      let controller = new RestController({
+        orm: {},
+        model: 'store'
+      })
+      done('Should have failed when adding a ORM invalid', controller)
+    } catch (err) {
+      assert.equal(err.message, 'Controller needs a Waterline ORM')
+      done()
+    }
+  })
+
   it('should initialize with this set of properties', function () {
-    let controller = new RestController(this.model)
-    let collectionName = inflect.pluralize(this.model.identity)
+    let controller = new RestController({
+      orm: this.orm,
+      model: 'store'
+    })
+
+    let collectionName = inflect.pluralize(controller.model)
+    assert(controller.model)
+    assert(controller.orm)
+    assert(controller.orm instanceof Waterline)
     assert(controller._methods)
     assert(controller._path, `/${collectionName}`)
-    assert(controller.model)
-    assert(controller.model instanceof Waterline.Collection)
     assert(controller.allowedMethods)
     assert.equal(controller._methods, controller.allowedMethods)
     assert.equal(controller.collectionName, collectionName)
@@ -75,7 +104,10 @@ describe('RestController#Instance', function () {
 
   it('should be chained in all methods', function () {
     let server = koa()
-    let controller = new RestController(this.model)
+    let controller = new RestController({
+      orm: this.orm,
+      model: 'store'
+    })
     assert.equal(controller, controller.methods('get post'))
     assert.equal(controller, controller.register(server))
   })

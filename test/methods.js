@@ -7,12 +7,14 @@ const RestController = require('../lib')
 describe('controller#methods', function () {
   before(function *() {
     this.orm = yield orm()
-    this.model = this.orm.collections.store
   })
 
   it('should set default methods', function () {
     let methods = ['get', 'post', 'put', 'delete']
-    let controller = new RestController(this.model)
+    let controller = new RestController({
+      orm: this.orm,
+      model: 'store'
+    })
     let allowed = controller.allowedMethods
 
     assert(Array.isArray(allowed))
@@ -22,7 +24,10 @@ describe('controller#methods', function () {
 
   it('should set specific methods with a whitelisted string', function () {
     let methods = ['get', 'post']
-    let controller = new RestController(this.model)
+    let controller = new RestController({
+      orm: this.orm,
+      model: 'store'
+    })
     controller.methods(methods.join(' '))
 
     let allowed = controller.allowedMethods
@@ -35,7 +40,10 @@ describe('controller#methods', function () {
   it('should set specific methods with an array', function () {
     let methods = ['put', 'delete']
 
-    let controller = new RestController(this.model)
+    let controller = new RestController({
+      orm: this.orm,
+      model: 'store'
+    })
     controller.methods(methods)
 
     let allowed = controller.allowedMethods
@@ -46,7 +54,10 @@ describe('controller#methods', function () {
   })
 
   it('should not set specific methods with an invalid argument', function (done) {
-    let controller = new RestController(this.model)
+    let controller = new RestController({
+      orm: this.orm,
+      model: 'store'
+    })
 
     try {
       controller.methods(function () {})
@@ -58,7 +69,10 @@ describe('controller#methods', function () {
   })
 
   it('should not set invalid methods', function (done) {
-    let controller = new RestController(this.model)
+    let controller = new RestController({
+      orm: this.orm,
+      model: 'store'
+    })
     let strMethods = 'foo bar baz meh'
 
     try {
