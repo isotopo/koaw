@@ -2,7 +2,7 @@
   "name": "koaw",
   "version": "0.1.0",
   "description": "Koa Restful",
-  "main": "lib",
+  "main": "./lib",
   "directories": {
     "test": "test"
   },
