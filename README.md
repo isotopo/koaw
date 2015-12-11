@@ -13,8 +13,8 @@ $ npm install koaw --save
 ## Usage
 
 ```js
-const Controller = require('koaw')
 const Koa = require('koa')
+const Koaw = require('koaw')
 const Waterline = require('waterline')
 const Stores = require('./collections/stores')
 
@@ -31,19 +31,17 @@ let controller = new Controller({
   model: 'store'
 })
 
-// Set methods to be used
-controller.methods('get post put delete')
-
-// Add middlewares to extend logic using generators
 controller
-  .before('post', function *(next) { /* some logic */ })
-  .after('post', function *(next) { /* some logic */ })
-  .before('post put', function *(next) { /* some logic */ })
-  .after('post put', function *(next) { /* some logic */ })
-  .after('put', function *(next) { /* some logic */ })
-
-// Register controller
-controller.register(server)
+  // Set methods to be used
+  .methods('get post put delete')
+  // Add middlewares to extend logic using generators
+  .before('post', function *(next) { /* some logic */ yield next })
+  .after('post', function *(next) { /* some logic */ yield next })
+  .before('post put', function *(next) { /* some logic */ yield next })
+  .after('post put', function *(next) { /* some logic */ yield next })
+  .after('put', function *(next) { /* some logic */ yield next })
+  // Register controller
+  .register(server)
 
 waterline.initialize({}, function (err) {
   server.listen(4000)
