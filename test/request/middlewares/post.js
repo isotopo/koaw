@@ -6,6 +6,7 @@ const request = require('supertest')
 const server = require('../../fixtures/server')
 const sinon = require('sinon')
 const waterline = require('../../fixtures/waterline')
+const faker = require('faker')
 
 describe('post middleware', function () {
   before(function *() {
@@ -53,5 +54,28 @@ describe('post middleware', function () {
     assert.equal(spy.args[1][0], 'before.twice')
     assert.equal(spy.args[2][0], 'after.once')
     assert.equal(spy.args[3][0], 'after.twice')
+  })
+
+  it('should have validator middleware', function *() {
+    let spy = sinon.spy()
+
+    let controller = new Koaw({
+      orm: this.waterline,
+      model: 'store'
+    })
+
+    .methods('post')
+    .before('post', function *(next) {
+      spy(this.modelParams)
+      yield next
+    })
+    .register(this.server)
+
+    yield request(this.server.listen()).post(controller._path).send({
+      name: faker.lorem.words()[0],
+      description: faker.lorem.paragraph()
+    })
+
+    assert.equal(2, Object.keys[spy.args[0][0]].length)
   })
 })
