@@ -61,5 +61,5 @@ DELETE /stores/:id
 ## Todo
 
 * Create a `koaw.validate` method to validate params
-* Create a `koaw.route` method to add custom routes
+* Add middleware support to custom routes
 * Create a `koaw.override` method to replace default handlers
