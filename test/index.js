@@ -35,7 +35,15 @@ describe('Koaw', function () {
   })
 
   it('should have only this set of private methods', function () {
-    let fns = ['_get', '_post', '_put', '_delete', '_getModel', '_setMiddleware']
+    let fns = [
+      '_get',
+      '_post',
+      '_put',
+      '_delete',
+      '_route',
+      '_getModel',
+      '_setMiddleware'
+    ]
 
     assert.equal(fns.length, this.privateMethods.length)
 
