@@ -58,8 +58,38 @@ PUT /stores/:id
 DELETE /stores/:id
 ```
 
-## Todo
+## API
+
+### .methods(methods)
+
+Change default methods with an array or whitelisted string. These are default methods: `post` `put` `get` `delete`.
+
+### .route(methods, path, fn)
+
+Add custom route to given model. The methods should be specified with an array or whitelisted string. For instance, `.route('get', 'custom', fn)` should generate this route: `GET /[collection]/custom`
+
+### .before(methods, fn)
+
+Add a before middleware to one or more methods. The methods should be specified with an array or whitelisted string.
+
+### .after(methods, fn)
+
+Add an after middleware to one or more methods. The methods should be specified with an array or whitelisted string.
+
+### .register(server)
+
+Register controller routes to server. `.register` must be called at the end of above methods.
+
+
+## Contribute
+
+### Todos
 
 * Create a `koaw.validate` method to validate params
 * Add middleware support to custom routes
 * Create a `koaw.override` method to replace default handlers
+* Add support to queries, filters and populating
+
+## License
+
+MIT
