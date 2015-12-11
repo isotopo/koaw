@@ -7,7 +7,7 @@ const server = require('../../fixtures/server')
 const sinon = require('sinon')
 const waterline = require('../../fixtures/waterline')
 
-describe('get middleware', function () {
+describe('post middleware', function () {
   before(function *() {
     this.server = yield server()
     this.waterline = yield waterline()
@@ -26,39 +26,27 @@ describe('get middleware', function () {
     })
 
     controller
-      .methods('get')
-      .before('get', function *(next) {
+      .methods('post')
+      .before('post', function *(next) {
         spy('before.once')
         yield next
       })
-      .before('get', function *(next) {
+      .before('post', function *(next) {
         spy('before.twice')
         yield next
       })
-      .after('get', function *(next) {
+      .after('post', function *(next) {
         spy('after.once')
         yield next
       })
-      .after('get', function *(next) {
+      .after('post', function *(next) {
         spy('after.twice')
         yield next
       })
       .register(this.server)
 
-    // Get collection
-    yield request(this.server.listen()).get(controller._path)
-
-    assert.equal(spy.callCount, 4)
-    assert.equal(spy.args[0][0], 'before.once')
-    assert.equal(spy.args[1][0], 'before.twice')
-    assert.equal(spy.args[2][0], 'after.once')
-    assert.equal(spy.args[3][0], 'after.twice')
-
-    // Reset spy
-    spy.reset()
-
-    // Get single
-    yield request(this.server.listen()).get(controller._path + '/123')
+    // Create document
+    yield request(this.server.listen()).post(controller._path)
 
     assert.equal(spy.callCount, 4)
     assert.equal(spy.args[0][0], 'before.once')
