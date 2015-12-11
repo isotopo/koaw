@@ -2,16 +2,15 @@
 
 const assert = require('assert')
 const inflect = require('i')()
-const koa = require('koa')
 const Router = require('koa-router')
-const orm = require('./fixtures/orm')
-const RestController = require('../lib')
+const waterline = require('./fixtures/waterline')
+const Koaw = require('../lib')
 const Waterline = require('waterline')
 
-describe('RestController#Constructor', function () {
+describe('Koaw', function () {
   before(function () {
     // Get constructor methods
-    let methods = Object.getOwnPropertyNames(RestController.prototype)
+    let methods = Object.getOwnPropertyNames(Koaw.prototype)
     // Filter public methods
     this.publicMethods = methods.filter(m => /^(?!_)(?!constructor)/.test(m))
     // Filter private methods
@@ -19,10 +18,10 @@ describe('RestController#Constructor', function () {
   })
 
   it('should be a constructor', function () {
-    let fn = RestController.toString()
+    let fn = Koaw.toString()
 
     assert(/^class\s*/.test(fn))
-    assert.equal(RestController.name, 'RestController')
+    assert.equal(Koaw.name, 'Koaw')
   })
 
   it('should have only this set of public methods', function () {
@@ -31,7 +30,7 @@ describe('RestController#Constructor', function () {
     assert.equal(fns.length, this.publicMethods.length)
 
     for (let fn of fns) {
-      assert.equal(typeof RestController.prototype[fn], 'function')
+      assert.equal(typeof Koaw.prototype[fn], 'function')
     }
   })
 
@@ -41,19 +40,23 @@ describe('RestController#Constructor', function () {
     assert.equal(fns.length, this.privateMethods.length)
 
     for (let fn of fns) {
-      assert.equal(typeof RestController.prototype[fn], 'function')
+      assert.equal(typeof Koaw.prototype[fn], 'function')
     }
   })
 })
 
-describe('RestController#Instance', function () {
+describe('controller', function () {
   before(function *() {
-    this.orm = yield orm()
+    this.waterline = yield waterline()
+  })
+
+  after(function () {
+    this.waterline.teardown()
   })
 
   it('should fail when instantiating without ORM instance', function (done) {
     try {
-      let controller = new RestController()
+      let controller = new Koaw()
       done('Should have failed when missing a ORM instance', controller)
     } catch (err) {
       assert.equal(err.message, 'Controller needs a ORM to be initialized')
@@ -63,8 +66,8 @@ describe('RestController#Instance', function () {
 
   it('should fail when instantiating without model', function (done) {
     try {
-      let controller = new RestController({
-        orm: this.orm
+      let controller = new Koaw({
+        orm: this.waterline
       })
       done('Should have failed when missing a model', controller)
     } catch (err) {
@@ -75,7 +78,7 @@ describe('RestController#Instance', function () {
 
   it('should fail when instantiating with a ORM invalid', function (done) {
     try {
-      let controller = new RestController({
+      let controller = new Koaw({
         orm: {},
         model: 'store'
       })
@@ -87,8 +90,8 @@ describe('RestController#Instance', function () {
   })
 
   it('should initialize with this set of properties', function () {
-    let controller = new RestController({
-      orm: this.orm,
+    let controller = new Koaw({
+      orm: this.waterline,
       model: 'store'
     })
 
@@ -104,20 +107,5 @@ describe('RestController#Instance', function () {
     assert.equal(controller.collection, collection)
     assert(controller._before)
     assert(controller._after)
-  })
-
-  it('should be chained in all methods', function () {
-    let server = koa()
-    let controller = new RestController({
-      orm: this.orm,
-      model: 'store'
-    })
-    assert.equal(controller, controller.methods('get post'))
-    assert.equal(controller, controller.register(server))
-    assert.equal(controller, controller.before('post', function *() {}))
-  })
-
-  after(function () {
-    this.orm.teardown()
   })
 })

@@ -2,19 +2,19 @@
 
 const assert = require('assert')
 const faker = require('faker')
-const RestController = require('../lib')
+const Koaw = require('../../lib')
 const request = require('supertest')
-const server = require('./fixtures/server')
-const orm = require('./fixtures/orm')
+const server = require('../fixtures/server')
+const waterline = require('../fixtures/waterline')
 
-describe('controller#register', function () {
+describe('server', function () {
   before(function *() {
     this.server = yield server()
-    this.orm = yield orm()
+    this.waterline = yield waterline()
     this.agent = request(this.server.listen())
 
-    this.controller = new RestController({
-      orm: this.orm,
+    this.controller = new Koaw({
+      orm: this.waterline,
       model: 'store'
     })
 
@@ -27,7 +27,11 @@ describe('controller#register', function () {
     }
   })
 
-  it('should set route to create a document', function *() {
+  after(function () {
+    this.waterline.teardown()
+  })
+
+  it('should have route to create a document', function *() {
     let response = yield this.agent
       .post(this.controller._path)
       .send(this.params)
@@ -40,7 +44,7 @@ describe('controller#register', function () {
     assert.equal(response.body.description, this.params.description)
   })
 
-  it('should set route to get a collection', function *() {
+  it('should have route to get a collection', function *() {
     let response = yield this.agent
       .get(this.controller._path)
       .expect(200)
@@ -51,7 +55,7 @@ describe('controller#register', function () {
     assert.equal(created[0].description, this.params.description)
   })
 
-  it('should set route to get a document', function *() {
+  it('should have route to get a document', function *() {
     let response = yield this.agent
       .get(`${this.controller._path}/${this.id}`)
       .expect(200)
@@ -60,7 +64,7 @@ describe('controller#register', function () {
     assert.equal(response.body.description, this.params.description)
   })
 
-  it('should set route to update a document', function *() {
+  it('should have route to update a document', function *() {
     let name = faker.lorem.words()[0]
     let response = yield this.agent
       .put(`${this.controller._path}/${this.id}`)
@@ -72,13 +76,9 @@ describe('controller#register', function () {
     assert.equal(response.body.description, this.params.description)
   })
 
-  it('should set route to delete a document', function *() {
+  it('should have route to delete a document', function *() {
     yield this.agent
       .delete(`${this.controller._path}/${this.id}`)
       .expect(204)
-  })
-
-  after(function () {
-    this.orm.teardown()
   })
 })

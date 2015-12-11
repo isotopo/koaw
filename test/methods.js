@@ -1,18 +1,31 @@
 'use strict'
 
 const assert = require('assert')
-const orm = require('./fixtures/orm')
-const RestController = require('../lib')
+const waterline = require('./fixtures/waterline')
+const Koaw = require('../lib')
 
-describe('controller#methods', function () {
+describe('controller.methods()', function () {
   before(function *() {
-    this.orm = yield orm()
+    this.waterline = yield waterline()
+  })
+
+  after(function () {
+    this.waterline.teardown()
+  })
+
+  it('should return an instance to be chained', function () {
+    let controller = new Koaw({
+      orm: this.waterline,
+      model: 'store'
+    })
+
+    assert.equal(controller, controller.methods('get post'))
   })
 
   it('should set default methods', function () {
     let methods = ['get', 'post', 'put', 'delete']
-    let controller = new RestController({
-      orm: this.orm,
+    let controller = new Koaw({
+      orm: this.waterline,
       model: 'store'
     })
     let allowed = controller.allowedMethods
@@ -24,8 +37,8 @@ describe('controller#methods', function () {
 
   it('should set specific methods with a whitelisted string', function () {
     let methods = ['get', 'post']
-    let controller = new RestController({
-      orm: this.orm,
+    let controller = new Koaw({
+      orm: this.waterline,
       model: 'store'
     })
     controller.methods(methods.join(' '))
@@ -40,8 +53,8 @@ describe('controller#methods', function () {
   it('should set specific methods with an array', function () {
     let methods = ['put', 'delete']
 
-    let controller = new RestController({
-      orm: this.orm,
+    let controller = new Koaw({
+      orm: this.waterline,
       model: 'store'
     })
     controller.methods(methods)
@@ -54,8 +67,8 @@ describe('controller#methods', function () {
   })
 
   it('should not set specific methods with an invalid argument', function (done) {
-    let controller = new RestController({
-      orm: this.orm,
+    let controller = new Koaw({
+      orm: this.waterline,
       model: 'store'
     })
 
@@ -69,8 +82,8 @@ describe('controller#methods', function () {
   })
 
   it('should not set invalid methods', function (done) {
-    let controller = new RestController({
-      orm: this.orm,
+    let controller = new Koaw({
+      orm: this.waterline,
       model: 'store'
     })
     let strMethods = 'foo bar baz meh'
@@ -88,9 +101,5 @@ describe('controller#methods', function () {
 
       done()
     }
-  })
-
-  after(function () {
-    this.orm.teardown()
   })
 })

@@ -1,21 +1,31 @@
 'use strict'
 
 const assert = require('assert')
-const RestController = require('../lib')
-const orm = require('./fixtures/orm')
+const Koaw = require('../lib')
+const waterline = require('./fixtures/waterline')
 const server = require('./fixtures/server')
 
-describe('controller#register', function () {
+describe('controller.register()', function () {
   before(function *() {
     this.server = yield server()
-    this.orm = yield orm()
+    this.waterline = yield waterline()
+  })
+
+  it('should return an instance to be chained', function () {
+    let controller = new Koaw({
+      orm: this.waterline,
+      model: 'store'
+    })
+
+    assert.equal(controller, controller.register(this.server))
   })
 
   it('should fail when trying to register routes', function (done) {
-    let controller = new RestController({
-      orm: this.orm,
+    let controller = new Koaw({
+      orm: this.waterline,
       model: 'store'
     })
+
     try {
       controller.register()
       done('Should have failed when not specify a server')
@@ -26,8 +36,8 @@ describe('controller#register', function () {
   })
 
   it('should set a server property as private instance property', function () {
-    let controller = new RestController({
-      orm: this.orm,
+    let controller = new Koaw({
+      orm: this.waterline,
       model: 'store'
     })
     controller.register(this.server)
@@ -35,10 +45,11 @@ describe('controller#register', function () {
   })
 
   it('should ensure to use a middleware server', function (done) {
-    let controller = new RestController({
-      orm: this.orm,
+    let controller = new Koaw({
+      orm: this.waterline,
       model: 'store'
     })
+
     try {
       controller.register({ method: function () {} })
       done('Should have failed when is not a koa server')
@@ -49,6 +60,6 @@ describe('controller#register', function () {
   })
 
   after(function () {
-    this.orm.teardown()
+    this.waterline.teardown()
   })
 })
