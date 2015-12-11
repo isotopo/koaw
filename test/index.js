@@ -3,6 +3,7 @@
 const assert = require('assert')
 const inflect = require('i')()
 const koa = require('koa')
+const Router = require('koa-router')
 const orm = require('./fixtures/orm')
 const RestController = require('../lib')
 const Waterline = require('waterline')
@@ -35,7 +36,7 @@ describe('RestController#Constructor', function () {
   })
 
   it('should have only this set of private methods', function () {
-    let fns = ['_get', '_post', '_put', '_delete', '_getModel']
+    let fns = ['_get', '_post', '_put', '_delete', '_getModel', '_setMiddleware']
 
     assert.equal(fns.length, this.privateMethods.length)
 
@@ -91,15 +92,18 @@ describe('RestController#Instance', function () {
       model: 'store'
     })
 
-    let collectionName = inflect.pluralize(controller.model)
+    let collection = inflect.pluralize(controller.model)
     assert(controller.model)
     assert(controller.orm)
     assert(controller.orm instanceof Waterline)
     assert(controller._methods)
-    assert(controller._path, `/${collectionName}`)
+    assert(controller.router instanceof Router)
+    assert(controller._path, `/${collection}`)
     assert(controller.allowedMethods)
     assert.equal(controller._methods, controller.allowedMethods)
-    assert.equal(controller.collectionName, collectionName)
+    assert.equal(controller.collection, collection)
+    assert(controller._before)
+    assert(controller._after)
   })
 
   it('should be chained in all methods', function () {
@@ -110,6 +114,7 @@ describe('RestController#Instance', function () {
     })
     assert.equal(controller, controller.methods('get post'))
     assert.equal(controller, controller.register(server))
+    assert.equal(controller, controller.before('post', function *() {}))
   })
 
   after(function () {
