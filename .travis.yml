@@ -6,3 +6,6 @@ node_js:
 
 services:
   - mongodb
+
+notifications:
+  slack: 4yopping:ALhrivGHquJzo5MPODfnRIvI
