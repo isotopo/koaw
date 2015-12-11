@@ -59,3 +59,9 @@ GET /stores/:id
 PUT /stores/:id
 DELETE /stores/:id
 ```
+
+## Todo
+
+* Create a `koaw.validate` method to validate params
+* Create a `koaw.route` method to add custom routes
+* Create a `koaw.override` method to replace default handlers
