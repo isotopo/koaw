@@ -1,7 +1,7 @@
 {
   "name": "koaw",
   "version": "0.1.0",
-  "description": "Koa Restful",
+  "description": "Create APIs using Koa and Waterline",
   "main": "./lib",
   "directories": {
     "test": "test"
