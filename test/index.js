@@ -25,7 +25,7 @@ describe('Koaw', function () {
   })
 
   it('should have only this set of public methods', function () {
-    let fns = ['methods', 'validate', 'before', 'after', 'route', 'register']
+    let fns = ['methods', 'override', 'validate', 'before', 'after', 'route', 'register']
 
     assert.equal(fns.length, this.publicMethods.length)
 
@@ -115,5 +115,6 @@ describe('controller', function () {
     assert.equal(controller.collection, collection)
     assert(controller._before)
     assert(controller._after)
+    assert(controller._handlers)
   })
 })
