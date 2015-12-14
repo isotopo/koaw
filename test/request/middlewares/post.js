@@ -47,7 +47,10 @@ describe('post middleware', function () {
       .register(this.server)
 
     // Create document
-    yield request(this.server.listen()).post(controller._path)
+    yield request(this.server.listen()).post(controller._path).send({
+      name: faker.lorem.words()[0],
+      description: faker.lorem.paragraph()
+    })
 
     assert.equal(spy.callCount, 4)
     assert.equal(spy.args[0][0], 'before.once')
@@ -73,9 +76,32 @@ describe('post middleware', function () {
 
     yield request(this.server.listen()).post(controller._path).send({
       name: faker.lorem.words()[0],
-      description: faker.lorem.paragraph()
+      description: faker.lorem.paragraph(),
+      active: true
+    }).expect(201)
+
+    assert.equal(2, Object.keys(spy.args[0][0]).length)
+  })
+
+  it('should reject if properties are incorrect', function *() {
+    let spy = sinon.spy()
+
+    let controller = new Koaw({
+      orm: this.waterline,
+      model: 'store'
     })
 
-    assert.equal(2, Object.keys[spy.args[0][0]].length)
+    .methods('post')
+    .before('post', function *(next) {
+      spy(this.modelParams)
+      yield next
+    })
+    .register(this.server)
+
+    yield request(this.server.listen()).post(controller._path).send({
+      name: 1,
+      description: faker.lorem.paragraph(),
+      active: true
+    }).expect(500)
   })
 })

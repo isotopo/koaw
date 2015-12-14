@@ -48,6 +48,7 @@
   },
   "dependencies": {
     "i": "^0.3.3",
+    "jsonschema": "^1.0.2",
     "koa-router": "^5.3.0",
     "waterline": "^0.10.28"
   }

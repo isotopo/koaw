@@ -6,8 +6,13 @@ let Store = Waterline.Collection.extend({
   identity: 'store',
   connection: 'sails-mongo',
   attributes: {
-    name: 'string',
-    description: 'string'
+    name: {
+      type: 'string',
+      required: true
+    },
+    description: {
+      type: 'string'
+    }
   }
 })
 
