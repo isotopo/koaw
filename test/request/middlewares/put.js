@@ -6,6 +6,7 @@ const request = require('supertest')
 const server = require('../../fixtures/server')
 const sinon = require('sinon')
 const waterline = require('../../fixtures/waterline')
+const faker = require('faker')
 
 describe('put middleware', function () {
   before(function *() {
@@ -46,7 +47,10 @@ describe('put middleware', function () {
       .register(this.server)
 
     // Create document
-    yield request(this.server.listen()).put(controller._path + '/124')
+    yield request(this.server.listen()).put(controller._path + '/124').send({
+      name: faker.lorem.words()[0],
+      description: faker.lorem.paragraph()
+    })
 
     assert.equal(spy.callCount, 4)
     assert.equal(spy.args[0][0], 'before.once')

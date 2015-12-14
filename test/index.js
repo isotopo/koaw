@@ -25,7 +25,7 @@ describe('Koaw', function () {
   })
 
   it('should have only this set of public methods', function () {
-    let fns = ['methods', 'override', 'validate', 'before', 'after', 'route', 'register']
+    let fns = ['methods', 'override', 'before', 'after', 'route', 'register']
 
     assert.equal(fns.length, this.publicMethods.length)
 
