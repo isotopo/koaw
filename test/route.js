@@ -5,6 +5,7 @@ const Koaw = require('../lib')
 const server = require('./fixtures/server')
 const request = require('supertest')
 const waterline = require('./fixtures/waterline')
+const faker = require('faker')
 
 describe('controller.route()', function () {
   before(function *() {
@@ -57,6 +58,10 @@ describe('controller.route()', function () {
 
     yield request(this.server.listen())
       .put(`/${this.controller.collection}/another`)
+      .send({
+        name: faker.lorem.words()[0],
+        description: faker.lorem.paragraph()
+      })
       .expect(200)
 
     yield request(this.server.listen())
