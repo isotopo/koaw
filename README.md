@@ -1,4 +1,4 @@
-# Koaw [![Build Status](https://travis-ci.com/4yopping/koaw.svg?token=9AVzs6dVVgfZSLppymEU&branch=master)](https://travis-ci.com/4yopping/koaw)
+# Koaw [![Build Status](https://travis-ci.org/4yopping/koaw.svg?branch=master)](https://travis-ci.org/4yopping/koaw)
 
 Create APIs using [Koa](http://koajs.com) and [Waterline](https://github.com/balderdashy/waterline). Koaw creates auto-generated CRUD routes, using the [co](https://github.com/tj/co) approach and the middleware design pattern.
 
