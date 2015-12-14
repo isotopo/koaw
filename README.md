@@ -1,4 +1,4 @@
-# Koaw [![Build Status](https://travis-ci.com/4yopping/koaw.svg?token=9AVzs6dVVgfZSLppymEU&branch=master)](https://travis-ci.com/4yopping/koaw)
+# Koaw [![Build Status](https://travis-ci.org/4yopping/koaw.svg?branch=master)](https://travis-ci.org/4yopping/koaw)
 
 Create APIs using [Koa](http://koajs.com) and [Waterline](https://github.com/balderdashy/waterline). Koaw creates auto-generated CRUD routes, using the [co](https://github.com/tj/co) approach and the middleware design pattern.
 
@@ -26,7 +26,7 @@ waterline.loadCollection(Stores)
 let server = new Koa()
 
 // Set new controller
-let controller = new Controller({
+let controller = new Koaw({
   orm: waterline,
   model: 'store'
 })
@@ -64,6 +64,10 @@ DELETE /stores/:id
 
 Change default methods with an array or whitelisted string. These are default methods: `post` `put` `get` `delete`.
 
+### .override(methods, handler)
+
+Change default handler of auto-generated routes. The methods should be specified with an array or whitelisted string.
+
 ### .route(methods, path, fn)
 
 Add custom route to given model. The methods should be specified with an array or whitelisted string. For instance, `.route('get', 'custom', fn)` should generate this route: `GET /[collection]/custom`
@@ -85,9 +89,7 @@ Register controller routes to server. `.register` must be called at the end of a
 
 ### Todos
 
-* Create a `koaw.validate` method to validate params
 * Add middleware support to custom routes
-* Create a `koaw.override` method to replace default handlers
 * Add support to queries, filters and populating
 
 ## License
