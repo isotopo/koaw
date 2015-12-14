@@ -12,7 +12,6 @@ describe('controller.override()', function () {
     this.server = yield server()
     this.waterline = yield waterline()
   })
-
   after(function () {
     this.waterline.teardown()
   })

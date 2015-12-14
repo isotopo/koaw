@@ -104,4 +104,26 @@ describe('post middleware', function () {
       active: true
     }).expect(500)
   })
+
+  it('should not reject when is a custom route', function *() {
+    let spy = sinon.spy()
+
+    let controller = new Koaw({
+      orm: this.waterline,
+      model: 'store'
+    })
+
+    .route('post', 'custom', function *(next) {
+      spy('should be executed')
+      this.status = 201
+      yield next
+    })
+    .register(this.server)
+
+    yield request(this.server.listen()).post(`${controller._path}/custom`).send({
+      name: 1,
+      description: faker.lorem.paragraph(),
+      active: true
+    }).expect(201)
+  })
 })
