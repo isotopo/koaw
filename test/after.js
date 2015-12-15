@@ -23,7 +23,7 @@ describe('controller.after()', function () {
   })
 
   it('should return an instance to be chained', function () {
-    assert.equal(this.controller, this.controller.before('get', function *() {}))
+    assert.equal(this.controller, this.controller.after('post', function *() {}))
   })
 
   it('should set middleware using a whitelisted string', function () {
@@ -31,37 +31,44 @@ describe('controller.after()', function () {
     this.controller.after('get post delete', this.handler)
     this.controller.after('delete', this.handler)
 
-    assert(Array.isArray(this.controller._after.get))
-    assert(Array.isArray(this.controller._after.post))
-    assert(Array.isArray(this.controller._after.put))
-    assert(Array.isArray(this.controller._after.delete))
+    assert(Array.isArray(this.controller._after['/'].get))
+    assert(Array.isArray(this.controller._after['/:id'].get))
+    assert(Array.isArray(this.controller._after['/'].post))
+    assert(Array.isArray(this.controller._after['/:id'].put))
+    assert(Array.isArray(this.controller._after['/:id'].delete))
 
-    assert.equal(this.controller._after.get.length, 2)
-    assert.equal(this.controller._after.get[0], this.handler)
-    assert.equal(this.controller._after.get[1], this.handler)
-    assert.equal(this.controller._after.post.length, 2)
-    assert.equal(this.controller._after.post[0], this.handler)
-    assert.equal(this.controller._after.post[1], this.handler)
-    assert.equal(this.controller._after.put.length, 1)
-    assert.equal(this.controller._after.put[0], this.handler)
-    assert.equal(this.controller._after.delete.length, 2)
-    assert.equal(this.controller._after.delete[0], this.handler)
-    assert.equal(this.controller._after.delete[1], this.handler)
+    assert.equal(this.controller._after['/'].get.length, 2)
+    assert.equal(this.controller._after['/'].get[0], this.handler)
+    assert.equal(this.controller._after['/'].get[1], this.handler)
+    assert.equal(this.controller._after['/:id'].get.length, 2)
+    assert.equal(this.controller._after['/:id'].get[0], this.handler)
+    assert.equal(this.controller._after['/:id'].get[1], this.handler)
+    assert.equal(this.controller._after['/'].post.length, 2)
+    assert.equal(this.controller._after['/'].post[0], this.handler)
+    assert.equal(this.controller._after['/'].post[1], this.handler)
+    assert.equal(this.controller._after['/:id'].put.length, 1)
+    assert.equal(this.controller._after['/:id'].put[0], this.handler)
+    assert.equal(this.controller._after['/:id'].delete.length, 2)
+    assert.equal(this.controller._after['/:id'].delete[0], this.handler)
+    assert.equal(this.controller._after['/:id'].delete[1], this.handler)
   })
 
   it('should set middleware using an array', function () {
     this.controller.after(['get', 'put', 'delete'], this.handler)
 
-    assert(Array.isArray(this.controller._after.get))
-    assert(Array.isArray(this.controller._after.put))
-    assert(Array.isArray(this.controller._after.delete))
+    assert(Array.isArray(this.controller._after['/'].get))
+    assert(Array.isArray(this.controller._after['/:id'].get))
+    assert(Array.isArray(this.controller._after['/:id'].put))
+    assert(Array.isArray(this.controller._after['/:id'].delete))
 
-    assert.equal(this.controller._after.get.length, 1)
-    assert.equal(this.controller._after.get[0], this.handler)
-    assert.equal(this.controller._after.put.length, 1)
-    assert.equal(this.controller._after.put[0], this.handler)
-    assert.equal(this.controller._after.delete.length, 1)
-    assert.equal(this.controller._after.delete[0], this.handler)
+    assert.equal(this.controller._after['/'].get.length, 1)
+    assert.equal(this.controller._after['/'].get[0], this.handler)
+    assert.equal(this.controller._after['/:id'].get.length, 1)
+    assert.equal(this.controller._after['/:id'].get[0], this.handler)
+    assert.equal(this.controller._after['/:id'].put.length, 1)
+    assert.equal(this.controller._after['/:id'].put[0], this.handler)
+    assert.equal(this.controller._after['/:id'].delete.length, 1)
+    assert.equal(this.controller._after['/:id'].delete[0], this.handler)
   })
 
   it('should not set middlewares with an invalid argument', function (done) {
@@ -90,5 +97,19 @@ describe('controller.after()', function () {
 
       done()
     }
+  })
+
+  it('should set a middleware to custom route', function () {
+    this.controller
+      .route('post put', '/custom', function *() {})
+      .after('post put', '/custom', this.handler)
+
+    assert(Array.isArray(this.controller._after['/custom'].post))
+    assert(Array.isArray(this.controller._after['/custom'].put))
+
+    assert.equal(this.controller._after['/custom'].post.length, 1)
+    assert.equal(this.controller._after['/custom'].post[0], this.handler)
+    assert.equal(this.controller._after['/custom'].put.length, 1)
+    assert.equal(this.controller._after['/custom'].put[0], this.handler)
   })
 })

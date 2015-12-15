@@ -116,5 +116,6 @@ describe('controller', function () {
     assert(controller._before)
     assert(controller._after)
     assert(controller._handlers)
+    assert(controller._routes)
   })
 })
