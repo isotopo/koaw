@@ -33,14 +33,14 @@ describe('controller.route()', function () {
   })
 
   it('should return an instance to be chained', function () {
-    let path = 'custom'
+    let path = '/custom'
     let handler = function *(next) { yield next }
 
     assert.equal(this.controller, this.controller.route('post', path, handler))
   })
 
   it('should set with whitelisted methods', function *() {
-    this.controller.route('post get', 'custom', this.handler)
+    this.controller.route('post get', '/custom', this.handler)
     this.controller.register(this.server)
 
     yield request(this.server.listen())
@@ -53,7 +53,7 @@ describe('controller.route()', function () {
   })
 
   it('should set with an array', function *() {
-    this.controller.route(['put', 'get'], 'another', this.handler)
+    this.controller.route(['put', 'get'], '/another', this.handler)
     this.controller.register(this.server)
 
     yield request(this.server.listen())
@@ -71,7 +71,7 @@ describe('controller.route()', function () {
 
   it('should fail when trying to register a route with invalid methods', function (done) {
     try {
-      this.controller.route('foo bar meh baz', 'custom')
+      this.controller.route('foo bar meh baz', '/custom')
       done('should have failed with invalid methods')
     } catch (e) {
       assert.equal(e.message, 'route only accepts valid methods')
@@ -111,7 +111,7 @@ describe('controller.route()', function () {
 
   it('should fail when trying to register a route without a handler', function (done) {
     try {
-      this.controller.route(['put', 'get'], 'custom')
+      this.controller.route(['put', 'get'], '/custom')
       done('should have failed without handler')
     } catch (e) {
       assert.equal(e.message, 'route needs a handler to be created')
@@ -121,7 +121,7 @@ describe('controller.route()', function () {
 
   it('should fail when trying to register a route with invalid function', function (done) {
     try {
-      this.controller.route(['put', 'get'], 'custom', function () {})
+      this.controller.route(['put', 'get'], '/custom', function () {})
       done('should have failed with an invalid function')
     } catch (e) {
       assert.equal(e.message, 'route handler requires be a generator function')

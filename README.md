@@ -72,13 +72,13 @@ Change default handler of auto-generated routes. The methods should be specified
 
 Add custom route to given model. The methods should be specified with an array or whitelisted string. For instance, `.route('get', 'custom', fn)` should generate this route: `GET /[collection]/custom`
 
-### .before(methods, fn)
+### .before(methods[, path], fn)
 
-Add a before middleware to one or more methods. The methods should be specified with an array or whitelisted string.
+Add a before middleware to one or more methods, both custom routes and auto-generated routes. The methods should be specified with an array or whitelisted string.
 
-### .after(methods, fn)
+### .after(methods[, path], fn)
 
-Add an after middleware to one or more methods. The methods should be specified with an array or whitelisted string.
+Add an after middleware to one or more methods, both custom routes and auto-generated routes. The methods should be specified with an array or whitelisted string.
 
 ### .register(server)
 
@@ -89,8 +89,8 @@ Register controller routes to server. `.register` must be called at the end of a
 
 ### Todos
 
-* Add middleware support to custom routes
 * Add support to queries, filters and populating
+* Add support to subcontrollers to create nested routes
 
 ## License
 

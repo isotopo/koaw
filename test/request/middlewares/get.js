@@ -66,4 +66,49 @@ describe('get middleware', function () {
     assert.equal(spy.args[2][0], 'after.once')
     assert.equal(spy.args[3][0], 'after.twice')
   })
+
+  it('should be executed before and after of custom route', function *() {
+    let spy = sinon.spy()
+
+    let controller = new Koaw({
+      orm: this.waterline,
+      model: 'store'
+    })
+
+    controller
+      .route('get', '/nested/123', function *(next) {
+        spy('handler')
+        this.status = 200
+        yield next
+      })
+      .before('get', '/nested/123', function *(next) {
+        spy('before.once')
+        yield next
+      })
+      .before('get', '/nested/123', function *(next) {
+        spy('before.twice')
+        yield next
+      })
+      .after('get', '/nested/123', function *(next) {
+        spy('after.once')
+        yield next
+      })
+      .after('get', '/nested/123', function *(next) {
+        spy('after.twice')
+        yield next
+      })
+      .register(this.server)
+
+    // Request
+    yield request(this.server.listen())
+      .get(`${controller._path}/nested/123`)
+      .expect(200)
+
+    assert.equal(spy.callCount, 5)
+    assert.equal(spy.args[0][0], 'before.once')
+    assert.equal(spy.args[1][0], 'before.twice')
+    assert.equal(spy.args[2][0], 'handler')
+    assert.equal(spy.args[3][0], 'after.once')
+    assert.equal(spy.args[4][0], 'after.twice')
+  })
 })

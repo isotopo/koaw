@@ -105,7 +105,7 @@ describe('post middleware', function () {
     }).expect(500)
   })
 
-  it('should not reject when is a custom route', function *() {
+  it('should be executed before and after of custom route', function *() {
     let spy = sinon.spy()
 
     let controller = new Koaw({
@@ -113,17 +113,62 @@ describe('post middleware', function () {
       model: 'store'
     })
 
-    .route('post', 'custom', function *(next) {
-      spy('should be executed')
+    controller
+      .route('post', '/custom', function *(next) {
+        spy('handler')
+        this.status = 201
+        yield next
+      })
+      .before('post', '/custom', function *(next) {
+        spy('before.once')
+        yield next
+      })
+      .before('post', '/custom', function *(next) {
+        spy('before.twice')
+        yield next
+      })
+      .after('post', '/custom', function *(next) {
+        spy('after.once')
+        yield next
+      })
+      .after('post', '/custom', function *(next) {
+        spy('after.twice')
+        yield next
+      })
+      .register(this.server)
+
+    // Request
+    yield request(this.server.listen())
+      .post(`${controller._path}/custom`)
+      .expect(201)
+
+    assert.equal(spy.callCount, 5)
+    assert.equal(spy.args[0][0], 'before.once')
+    assert.equal(spy.args[1][0], 'before.twice')
+    assert.equal(spy.args[2][0], 'handler')
+    assert.equal(spy.args[3][0], 'after.once')
+    assert.equal(spy.args[4][0], 'after.twice')
+  })
+
+  it('should not reject by validator when is a custom route', function *() {
+    let controller = new Koaw({
+      orm: this.waterline,
+      model: 'store'
+    })
+
+    .route('post', '/custom', function *(next) {
       this.status = 201
       yield next
     })
     .register(this.server)
 
-    yield request(this.server.listen()).post(`${controller._path}/custom`).send({
-      name: 1,
-      description: faker.lorem.paragraph(),
-      active: true
-    }).expect(201)
+    yield request(this.server.listen())
+      .post(`${controller._path}/custom`)
+      .send({
+        name: 1,
+        description: faker.lorem.paragraph(),
+        active: true
+      })
+      .expect(201)
   })
 })
