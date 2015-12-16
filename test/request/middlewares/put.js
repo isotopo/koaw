@@ -107,6 +107,24 @@ describe('put middleware', function () {
     assert.equal(spy.args[4][0], 'after.twice')
   })
 
+  it('should not reject when not sending a required property', function *() {
+    let controller = new Koaw({
+      orm: this.waterline,
+      model: 'store'
+    })
+    .methods('put')
+    .register(this.server)
+
+    let fields = yield this.waterline.collections.store.find()
+
+    yield request(this.server.listen())
+      .put(controller._path + '/' + fields[0].id)
+      .send({
+        description: faker.lorem.paragraph()
+      })
+      .expect(200)
+  })
+
   it('should not reject by validator when is a custom route', function *() {
     let controller = new Koaw({
       orm: this.waterline,
