@@ -5,7 +5,9 @@ const faker = require('faker')
 const Koaw = require('../../lib')
 const request = require('supertest')
 const server = require('../fixtures/server')
+const sinon = require('sinon')
 const waterline = require('../fixtures/waterline')
+const Waterline = require('waterline')
 
 describe('server', function () {
   before(function *() {
@@ -80,5 +82,40 @@ describe('server', function () {
     yield this.agent
       .delete(`${this.controller._path}/${this.id}`)
       .expect(204)
+  })
+
+  it('should set waterline object to middlewares', function *() {
+    let spy = sinon.spy()
+    let handler = function *(next) {
+      spy(this.waterline)
+      this.status = 200
+      yield next
+    }
+
+    let controller = new Koaw({
+      orm: this.waterline,
+      model: 'store'
+    })
+
+    controller
+      .override('get put post delete', handler)
+      .route('get put delete', '/nested/123', handler)
+      .register(this.server)
+
+    yield this.agent.post(controller._path).send(this.params)
+    yield this.agent.get(controller._path)
+    yield this.agent.get(`${controller._path}/123`)
+    yield this.agent.put(`${controller._path}/123`).send(this.params)
+    yield this.agent.delete(`${controller._path}/123`)
+    yield this.agent.get(`${controller._path}/nested/123`)
+    yield this.agent.put(`${controller._path}/nested/123`)
+    yield this.agent.delete(`${controller._path}/nested/123`)
+
+    assert.equal(spy.callCount, 8)
+
+    for (let i = 0; i < spy.callCount; i++) {
+      assert(spy.args[i][0], 'waterline object does not exists!')
+      assert(spy.args[i][0] instanceof Waterline)
+    }
   })
 })
