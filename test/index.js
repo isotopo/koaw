@@ -118,4 +118,18 @@ describe('controller', function () {
     assert(controller._handlers)
     assert(controller._routes)
   })
+
+  it('should initialize with custom options', function () {
+    let options = {
+      prefix: '/user/stores'
+    }
+
+    let controller = new Koaw({
+      orm: this.waterline,
+      model: 'store'
+    }, options)
+
+    assert.equal(controller._path, options.prefix)
+    assert.equal(controller.router.opts.prefix, options.prefix)
+  })
 })
