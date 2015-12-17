@@ -2,6 +2,7 @@
 
 const assert = require('assert')
 const Koaw = require('../../../lib')
+const faker = require('faker')
 const request = require('supertest')
 const server = require('../../fixtures/server')
 const sinon = require('sinon')
@@ -17,15 +18,17 @@ describe('get middleware', function () {
     this.waterline.teardown()
   })
 
-  it('should be executed before and after of main handler', function *() {
-    let spy = sinon.spy()
-
-    let controller = new Koaw({
+  beforeEach(function () {
+    this.controller = new Koaw({
       orm: this.waterline,
       model: 'store'
     })
+  })
 
-    controller
+  it('should be executed before and after of main handler', function *() {
+    let spy = sinon.spy()
+
+    this.controller
       .methods('get')
       .before('get', function *(next) {
         spy('before.once')
@@ -46,7 +49,7 @@ describe('get middleware', function () {
       .register(this.server)
 
     // Get collection
-    yield request(this.server.listen()).get(controller._path)
+    yield request(this.server.listen()).get(this.controller._path)
 
     assert.equal(spy.callCount, 4)
     assert.equal(spy.args[0][0], 'before.once')
@@ -58,7 +61,7 @@ describe('get middleware', function () {
     spy.reset()
 
     // Get single
-    yield request(this.server.listen()).get(controller._path + '/123')
+    yield request(this.server.listen()).get(this.controller._path + '/123')
 
     assert.equal(spy.callCount, 4)
     assert.equal(spy.args[0][0], 'before.once')
@@ -70,12 +73,7 @@ describe('get middleware', function () {
   it('should be executed before and after of custom route', function *() {
     let spy = sinon.spy()
 
-    let controller = new Koaw({
-      orm: this.waterline,
-      model: 'store'
-    })
-
-    controller
+    this.controller
       .route('get', '/nested/123', function *(next) {
         spy('handler')
         this.status = 200
@@ -101,7 +99,7 @@ describe('get middleware', function () {
 
     // Request
     yield request(this.server.listen())
-      .get(`${controller._path}/nested/123`)
+      .get(`${this.controller._path}/nested/123`)
       .expect(200)
 
     assert.equal(spy.callCount, 5)
@@ -110,5 +108,47 @@ describe('get middleware', function () {
     assert.equal(spy.args[2][0], 'handler')
     assert.equal(spy.args[3][0], 'after.once')
     assert.equal(spy.args[4][0], 'after.twice')
+  })
+
+  it('should set a query', function *() {
+    let params = {
+      name: faker.lorem.words()[0],
+      description: faker.lorem.paragraph()
+    }
+
+    let query = {
+      owner: 'mine'
+    }
+
+    this.controller
+    .before('get', function *(next) {
+      this.koaw.query = query
+      yield next
+    })
+    .register(this.server)
+
+    yield this.waterline.collections.store.create({
+      name: params.name,
+      description: params.description,
+      owner: query.owner
+    })
+
+    yield this.waterline.collections.store.create({
+      name: faker.lorem.words()[0],
+      description: faker.lorem.paragraph()
+    })
+
+    // Request
+    let res = yield request(this.server.listen())
+      .get(this.controller._path)
+      .expect(200)
+
+    yield this.waterline.collections.store.destroy({ owner: query.owner })
+
+    assert(Array.isArray(res.body))
+    assert.equal(res.body.length, 1)
+    assert.equal(res.body[0].name, params.name)
+    assert.equal(res.body[0].description, params.description)
+    assert.equal(res.body[0].owner, query.owner)
   })
 })

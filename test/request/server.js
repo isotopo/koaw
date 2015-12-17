@@ -84,8 +84,9 @@ describe('server', function () {
       .expect(204)
   })
 
-  it('should set waterline object to middlewares', function *() {
+  it('should set `this.waterline` to middleware', function *() {
     let spy = sinon.spy()
+
     let handler = function *(next) {
       spy(this.waterline)
       this.status = 200
@@ -96,11 +97,9 @@ describe('server', function () {
       orm: this.waterline,
       model: 'store'
     })
-
-    controller
-      .override('get put post delete', handler)
-      .route('get put delete', '/nested/123', handler)
-      .register(this.server)
+    .override('get put post delete', handler)
+    .route('get put delete', '/nested/123', handler)
+    .register(this.server)
 
     yield this.agent.post(controller._path).send(this.params)
     yield this.agent.get(controller._path)
@@ -116,6 +115,40 @@ describe('server', function () {
     for (let i = 0; i < spy.callCount; i++) {
       assert(spy.args[i][0], 'waterline object does not exists!')
       assert(spy.args[i][0] instanceof Waterline)
+    }
+  })
+
+  it('should set `this.koaw` to middleware', function *() {
+    let spy = sinon.spy()
+    let handler = function *(next) {
+      spy(this.koaw)
+      this.status = 200
+      yield next
+    }
+
+    let controller = new Koaw({
+      orm: this.waterline,
+      model: 'store'
+    })
+    .override('get put post delete', handler)
+    .route('get put delete', '/nested/123', handler)
+    .register(this.server)
+
+    yield this.agent.post(controller._path).send(this.params)
+    yield this.agent.get(controller._path)
+    yield this.agent.get(`${controller._path}/123`)
+    yield this.agent.put(`${controller._path}/123`).send(this.params)
+    yield this.agent.delete(`${controller._path}/123`)
+    yield this.agent.get(`${controller._path}/nested/123`)
+    yield this.agent.put(`${controller._path}/nested/123`)
+    yield this.agent.delete(`${controller._path}/nested/123`)
+
+    assert.equal(spy.callCount, 8)
+
+    for (let i = 0; i < spy.callCount; i++) {
+      let koaw = spy.args[i][0]
+      assert(koaw)
+      assert(koaw.query)
     }
   })
 })

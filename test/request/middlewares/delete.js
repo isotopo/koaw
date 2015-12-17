@@ -1,6 +1,7 @@
 'use strict'
 
 const assert = require('assert')
+const faker = require('faker')
 const Koaw = require('../../../lib')
 const request = require('supertest')
 const server = require('../../fixtures/server')
@@ -17,15 +18,17 @@ describe('delete middleware', function () {
     this.waterline.teardown()
   })
 
-  it('should be executed before and after of main handler', function *() {
-    let spy = sinon.spy()
-
-    let controller = new Koaw({
+  beforeEach(function () {
+    this.controller = new Koaw({
       orm: this.waterline,
       model: 'store'
     })
+  })
 
-    controller
+  it('should be executed before and after of main handler', function *() {
+    let spy = sinon.spy()
+
+    this.controller
       .methods('delete')
       .before('delete', function *(next) {
         spy('before.once')
@@ -46,7 +49,7 @@ describe('delete middleware', function () {
       .register(this.server)
 
     // Create document
-    yield request(this.server.listen()).delete(controller._path + '/124')
+    yield request(this.server.listen()).delete(this.controller._path + '/124')
 
     assert.equal(spy.callCount, 4)
     assert.equal(spy.args[0][0], 'before.once')
@@ -58,12 +61,7 @@ describe('delete middleware', function () {
   it('should be executed before and after of custom route', function *() {
     let spy = sinon.spy()
 
-    let controller = new Koaw({
-      orm: this.waterline,
-      model: 'store'
-    })
-
-    controller
+    this.controller
       .route('delete', '/custom', function *(next) {
         spy('handler')
         this.status = 204
@@ -89,7 +87,7 @@ describe('delete middleware', function () {
 
     // Request
     yield request(this.server.listen())
-      .delete(`${controller._path}/custom`)
+      .delete(`${this.controller._path}/custom`)
       .expect(204)
 
     assert.equal(spy.callCount, 5)
@@ -98,5 +96,41 @@ describe('delete middleware', function () {
     assert.equal(spy.args[2][0], 'handler')
     assert.equal(spy.args[3][0], 'after.once')
     assert.equal(spy.args[4][0], 'after.twice')
+  })
+
+  it('should set a query', function *() {
+    let params = {
+      name: faker.lorem.words()[0],
+      description: faker.lorem.paragraph()
+    }
+
+    let query = {
+      owner: 'mine'
+    }
+
+    this.controller
+    .before('delete', function *(next) {
+      this.koaw.query = query
+      yield next
+    })
+    .register(this.server)
+
+    let store = yield this.waterline.collections.store.create({
+      name: params.name,
+      description: params.description,
+      owner: query.owner
+    })
+
+    yield this.waterline.collections.store.create({
+      name: faker.lorem.words()[0],
+      description: faker.lorem.paragraph()
+    })
+
+    // Request
+    yield request(this.server.listen())
+      .delete(this.controller._path + '/' + store.id)
+      .expect(204)
+
+    yield this.waterline.collections.store.destroy({ owner: query.owner })
   })
 })

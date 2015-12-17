@@ -12,6 +12,9 @@ let Store = Waterline.Collection.extend({
     },
     description: {
       type: 'string'
+    },
+    owner: {
+      type: 'string'
     }
   }
 })
