@@ -84,6 +84,50 @@ describe('server', function () {
       .expect(204)
   })
 
+  it('should not have auto-generated routes without model', function *() {
+    let controller = new Koaw({
+      orm: this.waterline
+    }, {
+      prefix: '/api'
+    })
+    .register(this.server)
+
+    assert(!controller.model)
+    assert(!controller.collection)
+    assert(!controller.allowedMethods)
+    assert.equal(controller._path, '/api')
+
+    yield this.agent.get(controller._path).expect(404)
+    yield this.agent.get(controller._path + '/123').expect(404)
+    yield this.agent.post(controller._path).expect(404)
+    yield this.agent.put(controller._path + '/123').expect(404)
+    yield this.agent.delete(controller._path + '/123').expect(404)
+  })
+
+  it('should set a custom route without model', function *() {
+    let spy = sinon.spy()
+    let controller = new Koaw({
+      orm: this.waterline
+    }, {
+      prefix: '/api'
+    })
+    .route('post get', '/yay', function *(next) {
+      spy()
+      this.status = 200
+      yield next
+    })
+    .after('post', '/yay', function *(next) {
+      this.status = 201
+      yield next
+    })
+    .register(this.server)
+
+    yield this.agent.get(controller._path + '/yay').expect(200)
+    yield this.agent.post(controller._path + '/yay').expect(201)
+
+    assert(spy.calledTwice)
+  })
+
   it('should set `this.waterline` to middleware', function *() {
     let spy = sinon.spy()
 
