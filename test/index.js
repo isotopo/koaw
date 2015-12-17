@@ -72,18 +72,6 @@ describe('controller', function () {
     }
   })
 
-  it('should fail when instantiating without model', function (done) {
-    try {
-      let controller = new Koaw({
-        orm: this.waterline
-      })
-      done('Should have failed when missing a model', controller)
-    } catch (err) {
-      assert.equal(err.message, 'Controller needs a model to be initialized')
-      done()
-    }
-  })
-
   it('should fail when instantiating with a ORM invalid', function (done) {
     try {
       let controller = new Koaw({
